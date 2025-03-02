@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Sun, Moon, MessageCircle, Bell, User } from 'lucide-react';
+import { Search, Sun, Moon, MessageCircle, Bell, User, Menu } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useSidebar } from '../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
+  const { isExpanded, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
   const user = {
     name: 'John Doe',
@@ -22,9 +25,20 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-64 right-0 h-16 bg-background border-b border-border px-4 flex items-center justify-between z-10">
-      <div className="flex-1 max-w-xl">
-        <div className="relative">
+    <nav className={cn(
+      "fixed top-0 right-0 h-16 bg-background border-b border-border px-4 flex items-center justify-between z-10 transition-all duration-300",
+      isExpanded ? "left-64" : "left-16"
+    )}>
+      <div className="flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="mr-2 md:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <div className="flex-1 max-w-xl relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"

@@ -39,7 +39,7 @@ const Profile = () => {
       <div className="p-6 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center">
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/home')}
             className={`p-2 mr-4 border ${
               theme === 'dark' ? 'border-gray-800 hover:bg-gray-900' : 'border-gray-200 hover:bg-gray-50'
             }`}
