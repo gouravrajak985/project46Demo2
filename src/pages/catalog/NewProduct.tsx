@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { Plus, Minus, Save, ArrowLeft } from 'lucide-react';
+import { Plus, Minus, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CardContainer } from '@/components/ui/card-container';
+import { PageHeader } from '@/components/ui/page-header';
+import { FormInput } from '@/components/ui/form-input';
+import { FormTextarea } from '@/components/ui/form-textarea';
+import { FormSelect } from '@/components/ui/form-select';
+import { ActionButton } from '@/components/ui/action-button';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface OrderItem {
   id: string;
@@ -67,15 +74,12 @@ const NewProduct = () => {
     setTaxes(taxes.filter(tax => tax.id !== id));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImageUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = (status: 'draft' | 'published') => {
@@ -104,104 +108,46 @@ const NewProduct = () => {
   } focus:outline-none focus:ring-2 ${theme === 'dark' ? 'focus:ring-gray-600' : 'focus:ring-shopify-focus'} focus:border-shopify-focus`;
 
   return (
-    <div className={`border rounded-lg ${
-      theme === 'dark' ? 'bg-black border-gray-800' : 'bg-white border-shopify-border'
-    }`}>
-      <div className="p-6 border-b border-shopify-border dark:border-gray-800">
-        <div className="flex items-center">
-          <button
-            onClick={() => navigate('/catalog/manage-products')}
-            className={`p-2 mr-4 border rounded-md ${
-              theme === 'dark' ? 'border-gray-800 hover:bg-gray-900' : 'border-shopify-border hover:bg-shopify-surface'
-            }`}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h2 className="text-xl font-semibold">New Product</h2>
-        </div>
-      </div>
+    <CardContainer>
+      <PageHeader title="New Product" backLink="/catalog/manage-products" />
 
       <div className="p-6 space-y-6">
         {/* Product Image Upload */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium mb-2">Product Image</label>
-          <div className="flex items-center space-x-4">
-            <div className={`w-32 h-32 border-2 border-dashed rounded-lg flex items-center justify-center ${
-              theme === 'dark' ? 'border-gray-800' : 'border-shopify-border'
-            }`}>
-              {imagePreview ? (
-                <div className="relative w-full h-full">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                  <button
-                    onClick={() => setImagePreview(null)}
-                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <label className="cursor-pointer">
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                  <Plus className="w-8 h-8 text-shopify-text-secondary" />
-                </label>
-              )}
-            </div>
-            <div className="text-sm text-shopify-text-secondary">
-              <p>Upload a product image</p>
-              <p>Recommended size: 800x800px</p>
-            </div>
-          </div>
-        </div>
+        <ImageUpload
+          imagePreview={imagePreview}
+          onImageUpload={handleImageUpload}
+          onImageRemove={() => setImagePreview(null)}
+        />
 
         {/* Basic Information */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Product Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={inputClassName}
-              placeholder="Enter product title"
-            />
-          </div>
+          <FormInput
+            label="Product Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter product title"
+          />
 
-     
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className={`${inputClassName} h-32 resize-none`}
-              placeholder="Enter product description"
-            />
-          </div>
+          <FormTextarea
+            label="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter product description"
+            className="h-32 resize-none"
+          />
         </div>
 
         {/* Pricing */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Base Price (cost price)</label>
-            <input
-              type="number"
-              value={basePrice}
-              onChange={(e) => setBasePrice(e.target.value)}
-              className={inputClassName}
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-            />
-          </div>
+          <FormInput
+            label="Base Price (cost price)"
+            type="number"
+            value={basePrice}
+            onChange={(e) => setBasePrice(e.target.value)}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
 
           <div>
             <label className="block text-sm font-medium mb-1">Profit Percentage</label>
@@ -302,85 +248,62 @@ const NewProduct = () => {
         </div>
 
         {/* Stock */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Initial Stock</label>
-          <input
-            type="number"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            className={inputClassName}
-            placeholder="0"
-            min="0"
+        <FormInput
+          label="Initial Stock"
+          type="number"
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
+          placeholder="0"
+          min="0"
+        />
+
+        {/* Additional Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            label="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="Enter product category"
+          />
+          <FormInput
+            label="Brand"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            placeholder="Enter product brand"
           />
         </div>
-         {/* Additional Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Category</label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={inputClassName}
-                placeholder="Enter product category"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Brand</label>
-              <input
-                type="text"
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-                className={inputClassName}
-                placeholder="Enter product brand"
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Dimensions</label>
-              <input
-                type="text"
-                value={dimensions}
-                onChange={(e) => setDimensions(e.target.value)}
-                className={inputClassName}
-                placeholder="e.g., 10 x 5 x 2 inches"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Weight</label>
-              <input
-                type="text"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                className={inputClassName}
-                placeholder="e.g., 2.5 lbs"
-              />
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            label="Dimensions"
+            value={dimensions}
+            onChange={(e) => setDimensions(e.target.value)}
+            placeholder="e.g., 10 x 5 x 2 inches"
+          />
+          <FormInput
+            label="Weight"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            placeholder="e.g., 2.5 lbs"
+          />
+        </div>
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-4 pt-6">
-          <button
+          <ActionButton
             onClick={() => handleSave('draft')}
-            className={`px-4 py-2 border rounded-md ${
-              theme === 'dark'
-                ? 'border-gray-800 hover:bg-gray-900'
-                : 'border-shopify-border hover:bg-shopify-surface'
-            }`}
           >
             Save as Draft
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
+            variant="primary"
             onClick={() => handleSave('published')}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
             Publish
-          </button>
+          </ActionButton>
         </div>
       </div>
-    </div>
+    </CardContainer>
   );
 };
 

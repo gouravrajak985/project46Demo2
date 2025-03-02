@@ -1,7 +1,7 @@
 import React from 'react';
 import { DollarSign, ShoppingCart, Package, TrendingUp, Bell } from 'lucide-react';
-import StatCard from '../components/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SummaryCard } from '@/components/ui/summary-card';
 
 const Home = () => {
   const stats = [
@@ -63,7 +63,23 @@ const Home = () => {
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
+          <SummaryCard 
+            key={index} 
+            title={stat.title} 
+            value={stat.value} 
+            icon={stat.icon}
+            subtitle={
+              <span>
+                <span className={cn(
+                  "font-medium",
+                  stat.isPositive ? "text-green-600" : "text-red-600"
+                )}>
+                  {stat.change}
+                </span>
+                <span className="ml-2 text-muted-foreground">from last month</span>
+              </span>
+            }
+          />
         ))}
       </div>
 
@@ -90,6 +106,11 @@ const Home = () => {
       </Card>
     </div>
   );
+};
+
+// Helper function for class names
+const cn = (...classes: (string | boolean | undefined)[]) => {
+  return classes.filter(Boolean).join(' ');
 };
 
 export default Home;

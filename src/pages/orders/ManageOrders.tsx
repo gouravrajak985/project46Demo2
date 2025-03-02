@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { Eye, Edit, Trash2, ArrowLeft, Search } from 'lucide-react';
+import { Eye, Edit, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { CardContainer } from '@/components/ui/card-container';
+import { PageHeader } from '@/components/ui/page-header';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterDropdown } from '@/components/ui/filter-dropdown';
+import { ActionButton } from '@/components/ui/action-button';
+import { IconButton } from '@/components/ui/icon-button';
+import { DataTable } from '@/components/ui/data-table';
+import { StatusBadge } from '@/components/ui/status-badge';
 
 interface OrderItem {
   productName: string;
@@ -75,21 +83,6 @@ const orders: Order[] = [
   }
 ];
 
-const getStatusColor = (status: Order['status']) => {
-  const colors = {
-    Pending: 'bg-yellow-100 text-yellow-800',
-    Processing: 'bg-blue-100 text-blue-800',
-    Shipped: 'bg-purple-100 text-purple-800',
-    Delivered: 'bg-green-100 text-green-800',
-    Cancelled: 'bg-red-100 text-red-800',
-    Returned: 'bg-orange-100 text-orange-800',
-    Refunded: 'bg-pink-100 text-pink-800',
-    Completed: 'bg-green-100 text-green-800',
-    Saved: 'bg-gray-100 text-gray-800'
-  };
-  return colors[status];
-};
-
 const ManageOrders = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
@@ -98,7 +91,6 @@ const ManageOrders = () => {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const handleManageOrder = (orderId: string) => {
-    // Navigate to a dedicated order management page
     navigate(`/orders/manage-order/${orderId}`);
   };
 
@@ -118,70 +110,106 @@ const ManageOrders = () => {
     return matchesSearch && matchesStatus;
   });
 
-  return (
-    <div className={`border rounded-lg ${
-      theme === 'dark' ? 'bg-black border-gray-800' : 'bg-white border-shopify-border'
-    }`}>
-      <div className="p-6 border-b border-shopify-border dark:border-gray-800">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => navigate('/home')}
-            className={`p-2 mr-4 border rounded-md ${
-              theme === 'dark' ? 'border-gray-800 hover:bg-gray-900' : 'border-shopify-border hover:bg-shopify-surface'
-            }`}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h2 className="text-xl font-semibold">Manage Orders</h2>
+  const columns = [
+    {
+      header: 'Order ID',
+      accessor: 'id',
+      className: 'font-medium'
+    },
+    {
+      header: 'Customer',
+      accessor: 'customerName'
+    },
+    {
+      header: 'Amount',
+      accessor: (order: Order) => (
+        <span className={order.paymentReceived ? 'text-green-500' : 'text-red-500'}>
+          ${order.amount.toFixed(2)}
+        </span>
+      ),
+      className: 'font-medium'
+    },
+    {
+      header: 'Payment Method',
+      accessor: 'paymentMethod'
+    },
+    {
+      header: 'Status',
+      accessor: (order: Order) => (
+        <StatusBadge status={order.status} />
+      )
+    },
+    {
+      header: 'Date',
+      accessor: 'date'
+    },
+    {
+      header: 'Actions',
+      accessor: (order: Order) => (
+        <div className="flex space-x-3">
+          <IconButton 
+            icon={Eye} 
+            tooltip="View Order Details"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleOrderDetails(order.id);
+            }}
+          />
+          <IconButton 
+            icon={Edit} 
+            tooltip="Manage Order"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleManageOrder(order.id);
+            }}
+          />
+          <IconButton 
+            icon={Trash2} 
+            tooltip="Delete Order"
+            className="text-red-500"
+          />
         </div>
+      )
+    }
+  ];
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
-          <div className="flex-1 w-full md:w-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-shopify-text-secondary" />
-              <input
-                type="text"
-                placeholder="Search orders or products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 border rounded-md ${
-                  theme === 'dark' 
-                    ? 'bg-gray-900 border-gray-800' 
-                    : 'bg-white border-shopify-border'
-                }`}
-              />
-            </div>
-          </div>
-          <div className="flex space-x-4 w-full md:w-auto">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className={`px-4 py-2 border rounded-md ${
-                theme === 'dark' 
-                  ? 'bg-gray-900 border-gray-800' 
-                  : 'bg-white border-shopify-border'
-              }`}
-            >
-              <option value="">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Processing">Processing</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Delivered">Delivered</option>
-              <option value="Cancelled">Cancelled</option>
-              <option value="Returned">Returned</option>
-              <option value="Refunded">Refunded</option>
-              <option value="Completed">Completed</option>
-              <option value="Saved">Saved</option>
-            </select>
-            <button 
-              onClick={() => navigate('/orders/new-order')}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Create Order
-            </button>
-          </div>
+  const statusOptions = [
+    { value: 'Pending', label: 'Pending' },
+    { value: 'Processing', label: 'Processing' },
+    { value: 'Shipped', label: 'Shipped' },
+    { value: 'Delivered', label: 'Delivered' },
+    { value: 'Cancelled', label: 'Cancelled' },
+    { value: 'Returned', label: 'Returned' },
+    { value: 'Refunded', label: 'Refunded' },
+    { value: 'Completed', label: 'Completed' },
+    { value: 'Saved', label: 'Saved' }
+  ];
+
+  return (
+    <CardContainer>
+      <PageHeader title="Manage Orders" backLink="/home">
+        <div className="flex-1 w-full md:w-auto">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search orders or products..."
+          />
         </div>
-      </div>
+        <div className="flex space-x-4 w-full md:w-auto">
+          <FilterDropdown
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={statusOptions}
+            placeholder="All Status"
+          />
+          <ActionButton 
+            variant="primary"
+            onClick={() => navigate('/orders/new-order')}
+          >
+            Create Order
+          </ActionButton>
+        </div>
+      </PageHeader>
 
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -191,13 +219,14 @@ const ManageOrders = () => {
             theme === 'dark' ? 'border-gray-800' : 'border-shopify-border'
           }`}>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase">Order ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase">Customer</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase">Payment Method</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase">Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase">Actions</th>
+              {columns.map((column, index) => (
+                <th 
+                  key={index} 
+                  className={`px-6 py-3 text-left text-xs font-medium text-shopify-text-secondary uppercase tracking-wider ${column.className || ''}`}
+                >
+                  {column.header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className={`divide-y ${
@@ -208,51 +237,26 @@ const ManageOrders = () => {
                 <tr className={
                   theme === 'dark' ? 'hover:bg-gray-900' : 'hover:bg-shopify-surface'
                 }>
-                  <td className="px-6 py-4 font-medium">{order.id}</td>
-                  <td className="px-6 py-4">{order.customerName}</td>
-                  <td className={`px-6 py-4 font-medium ${
-                    order.paymentReceived ? 'text-green-500' : 'text-red-500'
-                  }`}>
-                    ${order.amount.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4">{order.paymentMethod}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{order.date}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex space-x-3">
-                      <button 
-                        onClick={() => toggleOrderDetails(order.id)}
-                        className={`p-2 border rounded-md ${
-                          theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
-                        }`}
-                        title="View Order Details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleManageOrder(order.id)}
-                        className={`p-2 border rounded-md ${
-                          theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
-                        }`}
-                        title="Manage Order"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button className={`p-2 border rounded-md ${
-                        theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
-                      }`}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  </td>
+                  {columns.map((column, cellIndex) => (
+                    <td 
+                      key={cellIndex} 
+                      className={`px-6 py-4 ${column.className || ''}`}
+                      onClick={() => {
+                        if (cellIndex !== columns.length - 1) { // Not clicking on actions column
+                          handleManageOrder(order.id);
+                        }
+                      }}
+                      style={{ cursor: cellIndex !== columns.length - 1 ? 'pointer' : 'default' }}
+                    >
+                      {typeof column.accessor === 'function' 
+                        ? column.accessor(order)
+                        : order[column.accessor as keyof Order]}
+                    </td>
+                  ))}
                 </tr>
                 {expandedOrderId === order.id && (
                   <tr>
-                    <td colSpan={7} className={`px-6 py-4 ${
+                    <td colSpan={columns.length} className={`px-6 py-4 ${
                       theme === 'dark' ? 'bg-gray-900' : 'bg-shopify-surface'
                     }`}>
                       <div className="text-sm">
@@ -286,7 +290,7 @@ const ManageOrders = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </CardContainer>
   );
 };
 
