@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { Eye, Edit, Trash2, ArrowLeft, Search, X } from 'lucide-react';
+import { Eye, Edit, Trash2, ArrowLeft, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Order {
@@ -72,28 +72,11 @@ const ManageOrders = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [editedOrder, setEditedOrder] = useState<Order | null>(null);
 
-  const handleEditClick = (order: Order) => {
-    setSelectedOrder(order);
-    setEditedOrder({ ...order });
+  const handleManageOrder = (orderId: string) => {
+    // Navigate to a dedicated order management page
+    navigate(`/orders/manage-order/${orderId}`);
   };
-
-  const handleUpdateOrder = () => {
-    if (editedOrder) {
-      // Here you would typically make an API call to update the order
-      console.log('Updating order:', editedOrder);
-      setSelectedOrder(null);
-      setEditedOrder(null);
-    }
-  };
-
-  const inputClassName = `w-full p-2 border rounded-md ${
-    theme === 'dark'
-      ? 'bg-gray-900 border-gray-800'
-      : 'bg-white border-shopify-border'
-  }`;
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -106,99 +89,6 @@ const ManageOrders = () => {
     <div className={`border rounded-lg ${
       theme === 'dark' ? 'bg-black border-gray-800' : 'bg-white border-shopify-border'
     }`}>
-      {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
-          <div className={`relative max-w-4xl w-full mx-4 ${
-            theme === 'dark' ? 'bg-gray-900' : 'bg-white'
-          } rounded-lg shadow-xl`}>
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Edit Order</h2>
-                <button
-                  onClick={() => {
-                    setSelectedOrder(null);
-                    setEditedOrder(null);
-                  }}
-                  className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors`}
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Customer Name</label>
-                  <input
-                    type="text"
-                    value={editedOrder?.customerName}
-                    onChange={(e) => setEditedOrder(prev => prev ? { ...prev, customerName: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Amount</label>
-                  <input
-                    type="number"
-                    value={editedOrder?.amount}
-                    onChange={(e) => setEditedOrder(prev => prev ? { ...prev, amount: parseFloat(e.target.value) } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Payment Method</label>
-                  <input
-                    type="text"
-                    value={editedOrder?.paymentMethod}
-                    onChange={(e) => setEditedOrder(prev => prev ? { ...prev, paymentMethod: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
-                  <select
-                    value={editedOrder?.status}
-                    onChange={(e) => setEditedOrder(prev => prev ? { ...prev, status: e.target.value as Order['status'] } : null)}
-                    className={inputClassName}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Returned">Returned</option>
-                    <option value="Refunded">Refunded</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Saved">Saved</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={() => {
-                    setSelectedOrder(null);
-                    setEditedOrder(null);
-                  }}
-                  className={`px-4 py-2 border rounded-md ${
-                    theme === 'dark'
-                      ? 'border-gray-800 hover:bg-gray-800'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdateOrder}
-                  className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
-                >
-                  Update Order
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="p-6 border-b border-shopify-border dark:border-gray-800">
         <div className="flex items-center mb-4">
           <button
@@ -252,7 +142,7 @@ const ManageOrders = () => {
             </select>
             <button 
               onClick={() => navigate('/orders/new-order')}
-              className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Create Order
             </button>
@@ -306,10 +196,11 @@ const ManageOrders = () => {
                       <Eye className="h-4 w-4" />
                     </button>
                     <button 
-                      onClick={() => handleEditClick(order)}
+                      onClick={() => handleManageOrder(order.id)}
                       className={`p-2 border rounded-md ${
                         theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
                       }`}
+                      title="Manage Order"
                     >
                       <Edit className="h-4 w-4" />
                     </button>

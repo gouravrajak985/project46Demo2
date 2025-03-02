@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { ArrowLeft, Search, Edit, Trash2, Tag, X } from 'lucide-react';
+import { ArrowLeft, Search, Edit, Trash2, Tag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Discount {
@@ -70,28 +70,11 @@ const ManageDiscounts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'Active' | 'Expired' | 'Scheduled' | ''>('');
   const [typeFilter, setTypeFilter] = useState<'discount_code' | 'coupon_codes' | ''>('');
-  const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
-  const [editedDiscount, setEditedDiscount] = useState<Discount | null>(null);
 
-  const handleEditClick = (discount: Discount) => {
-    setSelectedDiscount(discount);
-    setEditedDiscount({ ...discount });
+  const handleManageDiscount = (discountId: string) => {
+    // Navigate to a dedicated discount management page
+    navigate(`/discounts/manage-discount/${discountId}`);
   };
-
-  const handleUpdateDiscount = () => {
-    if (editedDiscount) {
-      // Here you would typically make an API call to update the discount
-      console.log('Updating discount:', editedDiscount);
-      setSelectedDiscount(null);
-      setEditedDiscount(null);
-    }
-  };
-
-  const inputClassName = `w-full p-2 border rounded-md ${
-    theme === 'dark'
-      ? 'bg-gray-900 border-gray-800'
-      : 'bg-white border-shopify-border'
-  }`;
 
   const filteredDiscounts = discounts.filter(discount => {
     const matchesSearch = discount.code.toLowerCase().includes(searchQuery.toLowerCase());
@@ -104,122 +87,6 @@ const ManageDiscounts = () => {
     <div className={`border rounded-lg ${
       theme === 'dark' ? 'bg-black border-gray-800' : 'bg-white border-shopify-border'
     }`}>
-      {selectedDiscount && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
-          <div className={`relative max-w-4xl w-full mx-4 ${
-            theme === 'dark' ? 'bg-gray-900' : 'bg-white'
-          } rounded-lg shadow-xl`}>
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Edit Discount</h2>
-                <button
-                  onClick={() => {
-                    setSelectedDiscount(null);
-                    setEditedDiscount(null);
-                  }}
-                  className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors`}
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Code</label>
-                  <input
-                    type="text"
-                    value={editedDiscount?.code}
-                    onChange={(e) => setEditedDiscount(prev => prev ? { ...prev, code: e.target.value.toUpperCase() } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Value</label>
-                  <div className="flex">
-                    <input
-                      type="number"
-                      value={editedDiscount?.value}
-                      onChange={(e) => setEditedDiscount(prev => prev ? { ...prev, value: parseFloat(e.target.value) } : null)}
-                      className={`${inputClassName} rounded-r-none`}
-                    />
-                    <select
-                      value={editedDiscount?.valueType}
-                      onChange={(e) => setEditedDiscount(prev => prev ? { ...prev, valueType: e.target.value as 'percentage' | 'fixed' } : null)}
-                      className={`${inputClassName} rounded-l-none border-l-0 w-24`}
-                    >
-                      <option value="percentage">%</option>
-                      <option value="fixed">$</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Start Date</label>
-                  <input
-                    type="date"
-                    value={editedDiscount?.startDate}
-                    onChange={(e) => setEditedDiscount(prev => prev ? { ...prev, startDate: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">End Date</label>
-                  <input
-                    type="date"
-                    value={editedDiscount?.endDate}
-                    onChange={(e) => setEditedDiscount(prev => prev ? { ...prev, endDate: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
-                  <select
-                    value={editedDiscount?.status}
-                    onChange={(e) => setEditedDiscount(prev => prev ? { ...prev, status: e.target.value as Discount['status'] } : null)}
-                    className={inputClassName}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Expired">Expired</option>
-                    <option value="Scheduled">Scheduled</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Max Uses</label>
-                  <input
-                    type="number"
-                    value={editedDiscount?.maxUses || ''}
-                    onChange={(e) => setEditedDiscount(prev => prev ? { ...prev, maxUses: e.target.value ? parseInt(e.target.value) : null } : null)}
-                    className={inputClassName}
-                    placeholder="Unlimited"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={() => {
-                    setSelectedDiscount(null);
-                    setEditedDiscount(null);
-                  }}
-                  className={`px-4 py-2 border rounded-md ${
-                    theme === 'dark'
-                      ? 'border-gray-800 hover:bg-gray-800'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdateDiscount}
-                  className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
-                >
-                  Update Discount
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="p-6 border-b border-shopify-border dark:border-gray-800">
         <div className="flex items-center mb-4">
           <button
@@ -280,7 +147,7 @@ const ManageDiscounts = () => {
             </select>
             <button 
               onClick={() => navigate('/discounts/create')}
-              className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark flex items-center"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
             >
               <Tag className="h-5 w-5 mr-2" />
               Create Discount
@@ -336,10 +203,11 @@ const ManageDiscounts = () => {
                 <td className="px-6 py-4">
                   <div className="flex space-x-3">
                     <button 
-                      onClick={() => handleEditClick(discount)}
+                      onClick={() => handleManageDiscount(discount.id)}
                       className={`p-2 border rounded-md ${
                         theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
                       }`}
+                      title="Manage Discount"
                     >
                       <Edit className="h-4 w-4" />
                     </button>

@@ -19,6 +19,10 @@ import PaymentReports from './pages/reports/PaymentReports';
 import OTPVerification from './pages/auth/OTPVerification';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import ManageProduct from './pages/catalog/ManageProduct';
+import ManageCustomer from './pages/customers/ManageCustomer';
+import ManageOrder from './pages/orders/ManageOrder';
+import ManageDiscount from './pages/discounts/ManageDiscount';
 
 function App() {
   const [showMobileWarning, setShowMobileWarning] = useState(false);
@@ -62,17 +66,33 @@ function App() {
             {/* Dashboard Routes */}
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<DashboardLayout><Home /></DashboardLayout>} />
+            
+            {/* Catalog Routes */}
             <Route path="/catalog/manage-products" element={<DashboardLayout><ManageProducts /></DashboardLayout>} />
             <Route path="/catalog/new-product" element={<DashboardLayout><NewProduct /></DashboardLayout>} />
+            <Route path="/catalog/manage-product/:id" element={<DashboardLayout><ManageProduct /></DashboardLayout>} />
+            
+            {/* Order Routes */}
             <Route path="/orders/manage-orders" element={<DashboardLayout><ManageOrders /></DashboardLayout>} />
             <Route path="/orders/new-order" element={<DashboardLayout><NewOrder /></DashboardLayout>} />
+            <Route path="/orders/manage-order/:id" element={<DashboardLayout><ManageOrder /></DashboardLayout>} />
+            
+            {/* Customer Routes */}
             <Route path="/customers/new-customer" element={<DashboardLayout><NewCustomer /></DashboardLayout>} />
             <Route path="/customers/manage-customers" element={<DashboardLayout><ManageCustomers /></DashboardLayout>} />
+            <Route path="/customers/manage-customer/:id" element={<DashboardLayout><ManageCustomer /></DashboardLayout>} />
+            
+            {/* Discount Routes */}
             <Route path="/discounts/manage" element={<DashboardLayout><ManageDiscounts /></DashboardLayout>} />
             <Route path="/discounts/create" element={<DashboardLayout><CreateDiscount /></DashboardLayout>} />
+            <Route path="/discounts/manage-discount/:id" element={<DashboardLayout><ManageDiscount /></DashboardLayout>} />
+            
+            {/* Report Routes */}
             <Route path="/reports/sales" element={<DashboardLayout><SalesReports /></DashboardLayout>} />
             <Route path="/reports/customer-growth" element={<DashboardLayout><CustomerGrowthReports /></DashboardLayout>} />
             <Route path="/reports/payments" element={<DashboardLayout><PaymentReports /></DashboardLayout>} />
+            
+            {/* Profile Route */}
             <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
           </Routes>
         </Router>

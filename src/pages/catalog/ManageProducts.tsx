@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ExternalLink, Edit, Trash2, ArrowLeft, Search, X } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { ExternalLink, Edit, Trash2, ArrowLeft, Search, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Product {
@@ -82,8 +82,6 @@ const ManageProducts = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [editedProduct, setEditedProduct] = useState<Product | null>(null);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -92,188 +90,15 @@ const ManageProducts = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleEditClick = (product: Product) => {
-    setSelectedProduct(product);
-    setEditedProduct({ ...product });
+  const handleManageProduct = (productId: number) => {
+    // Navigate to a dedicated product management page
+    navigate(`/catalog/manage-product/${productId}`);
   };
-
-  const handleUpdateProduct = () => {
-    if (editedProduct) {
-      // Here you would typically make an API call to update the product
-      console.log('Updating product:', editedProduct);
-      setSelectedProduct(null);
-      setEditedProduct(null);
-    }
-  };
-
-  const inputClassName = `w-full p-2 border rounded-md ${
-    theme === 'dark'
-      ? 'bg-gray-900 border-gray-800'
-      : 'bg-white border-shopify-border'
-  }`;
 
   return (
     <div className={`border rounded-lg ${
       theme === 'dark' ? 'bg-black border-gray-800' : 'bg-white border-shopify-border'
     }`}>
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
-          <div className={`relative max-w-4xl w-full mx-4 ${
-            theme === 'dark' ? 'bg-gray-900' : 'bg-white'
-          } rounded-lg shadow-xl`}>
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Edit Product</h2>
-                <button
-                  onClick={() => {
-                    setSelectedProduct(null);
-                    setEditedProduct(null);
-                  }}
-                  className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors`}
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <img
-                    src={editedProduct?.image}
-                    alt={editedProduct?.title}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Product Title</label>
-                    <input
-                      type="text"
-                      value={editedProduct?.title}
-                      onChange={(e) => setEditedProduct(prev => prev ? { ...prev, title: e.target.value } : null)}
-                      className={inputClassName}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">SKU</label>
-                    <input
-                      type="text"
-                      value={editedProduct?.sku}
-                      onChange={(e) => setEditedProduct(prev => prev ? { ...prev, sku: e.target.value } : null)}
-                      className={inputClassName}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Price</label>
-                      <input
-                        type="number"
-                        value={editedProduct?.price}
-                        onChange={(e) => setEditedProduct(prev => prev ? { ...prev, price: parseFloat(e.target.value) } : null)}
-                        className={inputClassName}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Stock</label>
-                      <input
-                        type="number"
-                        value={editedProduct?.stock}
-                        onChange={(e) => setEditedProduct(prev => prev ? { ...prev, stock: parseInt(e.target.value) } : null)}
-                        className={inputClassName}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Status</label>
-                    <select
-                      value={editedProduct?.status}
-                      onChange={(e) => setEditedProduct(prev => prev ? { ...prev, status: e.target.value } : null)}
-                      className={inputClassName}
-                    >
-                      <option value="Live">Live</option>
-                      <option value="Saved">Saved</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label className="block text-sm font-medium mb-1">Description</label>
-                <textarea
-                  value={editedProduct?.description}
-                  onChange={(e) => setEditedProduct(prev => prev ? { ...prev, description: e.target.value } : null)}
-                  className={`${inputClassName} h-32`}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Category</label>
-                  <input
-                    type="text"
-                    value={editedProduct?.category}
-                    onChange={(e) => setEditedProduct(prev => prev ? { ...prev, category: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Brand</label>
-                  <input
-                    type="text"
-                    value={editedProduct?.brand}
-                    onChange={(e) => setEditedProduct(prev => prev ? { ...prev, brand: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Dimensions</label>
-                  <input
-                    type="text"
-                    value={editedProduct?.dimensions}
-                    onChange={(e) => setEditedProduct(prev => prev ? { ...prev, dimensions: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Weight</label>
-                  <input
-                    type="text"
-                    value={editedProduct?.weight}
-                    onChange={(e) => setEditedProduct(prev => prev ? { ...prev, weight: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={() => {
-                    setSelectedProduct(null);
-                    setEditedProduct(null);
-                  }}
-                  className={`px-4 py-2 border rounded-md ${
-                    theme === 'dark'
-                      ? 'border-gray-800 hover:bg-gray-800'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdateProduct}
-                  className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
-                >
-                  Update Product
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="p-6 border-b border-shopify-border dark:border-gray-800">
         <div className="flex items-center mb-4">
           <button
@@ -320,7 +145,7 @@ const ManageProducts = () => {
             </select>
             <button 
               onClick={() => navigate('/catalog/new-product')}
-              className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Add New Product
             </button>
@@ -394,11 +219,11 @@ const ManageProducts = () => {
                       <ExternalLink className="h-4 w-4" />
                     </button>
                     <button 
-                      onClick={() => handleEditClick(product)}
+                      onClick={() => handleManageProduct(product.id)}
                       className={`p-2 border rounded-md ${
                         theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
                       }`}
-                      title="Edit Product"
+                      title="Manage Product"
                     >
                       <Edit className="h-4 w-4" />
                     </button>

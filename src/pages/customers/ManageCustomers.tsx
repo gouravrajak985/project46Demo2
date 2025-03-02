@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { Eye, Edit, Trash2, ArrowLeft, Search, X } from 'lucide-react';
+import { Eye, Edit, Trash2, ArrowLeft, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Customer {
@@ -61,28 +61,11 @@ const ManageCustomers = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'Active' | 'Inactive' | ''>('');
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [editedCustomer, setEditedCustomer] = useState<Customer | null>(null);
 
-  const handleEditClick = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setEditedCustomer({ ...customer });
+  const handleManageCustomer = (customerId: string) => {
+    // Navigate to a dedicated customer management page
+    navigate(`/customers/manage-customer/${customerId}`);
   };
-
-  const handleUpdateCustomer = () => {
-    if (editedCustomer) {
-      // Here you would typically make an API call to update the customer
-      console.log('Updating customer:', editedCustomer);
-      setSelectedCustomer(null);
-      setEditedCustomer(null);
-    }
-  };
-
-  const inputClassName = `w-full p-2 border rounded-md ${
-    theme === 'dark'
-      ? 'bg-gray-900 border-gray-800'
-      : 'bg-white border-shopify-border'
-  }`;
 
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = customer.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -96,92 +79,6 @@ const ManageCustomers = () => {
     <div className={`border rounded-lg ${
       theme === 'dark' ? 'bg-black border-gray-800' : 'bg-white border-shopify-border'
     }`}>
-      {selectedCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50">
-          <div className={`relative max-w-4xl w-full mx-4 ${
-            theme === 'dark' ? 'bg-gray-900' : 'bg-white'
-          } rounded-lg shadow-xl`}>
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Edit Customer</h2>
-                <button
-                  onClick={() => {
-                    setSelectedCustomer(null);
-                    setEditedCustomer(null);
-                  }}
-                  className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors`}
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Customer Name</label>
-                  <input
-                    type="text"
-                    value={editedCustomer?.customerName}
-                    onChange={(e) => setEditedCustomer(prev => prev ? { ...prev, customerName: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Username</label>
-                  <input
-                    type="text"
-                    value={editedCustomer?.userName}
-                    onChange={(e) => setEditedCustomer(prev => prev ? { ...prev, userName: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={editedCustomer?.email}
-                    onChange={(e) => setEditedCustomer(prev => prev ? { ...prev, email: e.target.value } : null)}
-                    className={inputClassName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
-                  <select
-                    value={editedCustomer?.status}
-                    onChange={(e) => setEditedCustomer(prev => prev ? { ...prev, status: e.target.value as 'Active' | 'Inactive' } : null)}
-                    className={inputClassName}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={() => {
-                    setSelectedCustomer(null);
-                    setEditedCustomer(null);
-                  }}
-                  className={`px-4 py-2 border rounded-md ${
-                    theme === 'dark'
-                      ? 'border-gray-800 hover:bg-gray-800'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdateCustomer}
-                  className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
-                >
-                  Update Customer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="p-6 border-b border-shopify-border dark:border-gray-800">
         <div className="flex items-center mb-4">
           <button
@@ -228,7 +125,7 @@ const ManageCustomers = () => {
             </select>
             <button 
               onClick={() => navigate('/customers/new-customer')}
-              className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Add Customer
             </button>
@@ -278,10 +175,11 @@ const ManageCustomers = () => {
                       <Eye className="h-4 w-4" />
                     </button>
                     <button 
-                      onClick={() => handleEditClick(customer)}
+                      onClick={() => handleManageCustomer(customer.id)}
                       className={`p-2 border rounded-md ${
                         theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
                       }`}
+                      title="Manage Customer"
                     >
                       <Edit className="h-4 w-4" />
                     </button>
