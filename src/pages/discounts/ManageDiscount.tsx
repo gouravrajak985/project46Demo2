@@ -97,6 +97,203 @@ const ManageDiscount = () => {
     console.log('Saving discount:', discount);
     navigate('/discounts/manage');
   };
-}
+
+  if (!discount) {
+    return <div>Loading...</div>;
+  }
+
+  const inputClassName = `w-full p-3 border rounded-md ${
+    theme === 'dark'
+      ? 'bg-gray-900 border-gray-800'
+      : 'bg-white border-shopify-border'
+  } focus:outline-none focus:ring-2 ${theme === 'dark' ? 'focus:ring-gray-600' : 'focus:ring-shopify-focus'} focus:border-shopify-focus`;
+
+  return (
+    <div className={`border rounded-lg ${
+      theme === 'dark' ? 'bg-black border-gray-800' : 'bg-white border-shopify-border'
+    }`}>
+      <div className="p-6 border-b border-shopify-border dark:border-gray-800">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <button
+              onClick={() => navigate('/discounts/manage')}
+              className={`p-2 mr-4 border rounded-md ${
+                theme === 'dark' ? 'border-gray-800 hover:bg-gray-900' : 'border-shopify-border hover:bg-shopify-surface'
+              }`}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <h2 className="text-xl font-semibold">Manage Discount</h2>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6 space-y-6">
+        {/* Discount Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">Discount Code</label>
+            <input
+              type="text"
+              name="code"
+              value={discount.code}
+              onChange={handleInputChange}
+              className={inputClassName}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Discount Type</label>
+            <select
+              name="type"
+              value={discount.type}
+              onChange={handleInputChange}
+              className={inputClassName}
+            >
+              <option value="discount_code">Discount Code</option>
+              <option value="coupon_codes">Coupon Codes</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Discount Value */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">Discount Value</label>
+            <div className="flex">
+              <input
+                type="number"
+                name="value"
+                value={discount.value}
+                onChange={handleInputChange}
+                min="0"
+                step={discount.valueType === 'percentage' ? '1' : '0.01'}
+                className={`${inputClassName} rounded-r-none`}
+              />
+              <select
+                name="valueType"
+                value={discount.valueType}
+                onChange={handleInputChange}
+                className={`${inputClassName} rounded-l-none border-l-0 w-24`}
+              >
+                <option value="percentage">%</option>
+                <option value="fixed">$</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Minimum Purchase Amount</label>
+            <input
+              type="number"
+              name="minPurchaseAmount"
+              value={discount.minPurchaseAmount || 0}
+              onChange={handleInputChange}
+              min="0"
+              step="0.01"
+              className={inputClassName}
+            />
+          </div>
+        </div>
+
+        {/* Usage Limits */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">Maximum Uses</label>
+            <input
+              type="number"
+              name="maxUses"
+              value={discount.maxUses || ''}
+              onChange={handleInputChange}
+              min="0"
+              placeholder="Unlimited"
+              className={inputClassName}
+            />
+            <p className="mt-1 text-sm text-muted-foreground">Leave empty for unlimited uses</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Current Usage</label>
+            <input
+              type="number"
+              value={discount.usageCount}
+              className={`${inputClassName} bg-gray-100 dark:bg-gray-800`}
+              disabled
+            />
+          </div>
+        </div>
+
+        {/* Date Range */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              value={discount.startDate}
+              onChange={handleInputChange}
+              className={inputClassName}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">End Date</label>
+            <input
+              type="date"
+              name="endDate"
+              value={discount.endDate}
+              onChange={handleInputChange}
+              className={inputClassName}
+            />
+          </div>
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Status</label>
+          <select
+            name="status"
+            value={discount.status}
+            onChange={handleInputChange}
+            className={inputClassName}
+          >
+            <option value="Active">Active</option>
+            <option value="Expired">Expired</option>
+            <option value="Scheduled">Scheduled</option>
+          </select>
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Description</label>
+          <textarea
+            name="description"
+            value={discount.description || ''}
+            onChange={handleInputChange}
+            className={`${inputClassName} h-24`}
+            placeholder="Add a description for this discount"
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-4 pt-6">
+          <button
+            onClick={() => navigate('/discounts/manage')}
+            className={`px-4 py-2 border rounded-md ${
+              theme === 'dark'
+                ? 'border-gray-800 hover:bg-gray-900'
+                : 'border-shopify-border hover:bg-shopify-surface'
+            }`}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
+          >
+            <Save className="h-5 w-5 mr-2" />
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default ManageDiscount;
