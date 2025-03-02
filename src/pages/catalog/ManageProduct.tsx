@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { ArrowLeft, Save, Upload, X } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Plus } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+interface Tax {
+  id: string;
+  name: string;
+  percentage: number;
+}
 
 interface Product {
   id: number;
   image: string;
   title: string;
-  price: number;
+  basePrice: number;
+  profitPercentage: number;
+  taxes: Tax[];
+  priceWithProfit: number;
+  finalPrice: number;
   stock: number;
   status: string;
   sku: string;
@@ -23,7 +33,13 @@ const products: Product[] = [
     id: 1,
     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&q=80',
     title: 'Premium Headphones',
-    price: 199.99,
+    basePrice: 150,
+    profitPercentage: 33.33,
+    taxes: [
+      { id: '1', name: 'VAT', percentage: 10 }
+    ],
+    priceWithProfit: 200,
+    finalPrice: 220,
     stock: 45,
     status: 'Live',
     sku: 'HDX-100',
@@ -37,7 +53,13 @@ const products: Product[] = [
     id: 2,
     image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&q=80',
     title: 'Wireless Mouse',
-    price: 49.99,
+    basePrice: 35,
+    profitPercentage: 42.86,
+    taxes: [
+      { id: '1', name: 'VAT', percentage: 10 }
+    ],
+    priceWithProfit: 50,
+    finalPrice: 55,
     stock: 32,
     status: 'Saved',
     sku: 'WM-200',
@@ -51,7 +73,13 @@ const products: Product[] = [
     id: 3,
     image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=200&q=80',
     title: 'Mechanical Keyboard',
-    price: 159.99,
+    basePrice: 120,
+    profitPercentage: 33.33,
+    taxes: [
+      { id: '1', name: 'VAT', percentage: 10 }
+    ],
+    priceWithProfit: 160,
+    finalPrice: 176,
     stock: 15,
     status: 'Live',
     sku: 'KB-300',
@@ -65,7 +93,13 @@ const products: Product[] = [
     id: 4,
     image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=200&q=80',
     title: 'Gaming Monitor',
-    price: 299.99,
+    basePrice: 250,
+    profitPercentage: 20,
+    taxes: [
+      { id: '1', name: 'VAT', percentage: 10 }
+    ],
+    priceWithProfit: 300,
+    finalPrice: 330,
     stock: 8,
     status: 'Saved',
     sku: 'GM-400',
@@ -83,6 +117,8 @@ const ManageProduct = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [newTaxName, setNewTaxName] = useState('');
+  const [newTaxPercentage, setNewTaxPercentage] = useState('');
 
   useEffect(() => {
     // Find the product with the matching ID
@@ -95,6 +131,25 @@ const ManageProduct = () => {
       navigate('/catalog/manage-products');
     }
   }, [id, navigate]);
+
+  useEffect(() => {
+    if (product) {
+      // Recalculate prices when base price, profit percentage, or taxes change
+      const basePriceValue = product.basePrice;
+      const profitValue = basePriceValue * (product.profitPercentage / 100);
+      const priceWithProfitValue = basePriceValue + profitValue;
+      
+      const taxAmount = product.taxes.reduce((acc, tax) => {
+        return acc + (priceWithProfitValue * (tax.percentage / 100));
+      }, 0);
+      
+      setProduct({
+        ...product,
+        priceWithProfit: priceWithProfitValue,
+        finalPrice: priceWithProfitValue + taxAmount
+      });
+    }
+  }, [product?.basePrice, product?.profitPercentage, product?.taxes]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,7 +170,36 @@ const ManageProduct = () => {
     if (product) {
       setProduct({
         ...product,
-        [name]: name === 'price' || name === 'stock' ? Number(value) : value
+        [name]: name === 'basePrice' || name === 'profitPercentage' || name === 'stock' 
+          ? Number(value) 
+          : value
+      });
+    }
+  };
+
+  const handleAddTax = () => {
+    if (product && newTaxName && newTaxPercentage) {
+      const newTax = {
+        id: Date.now().toString(),
+        name: newTaxName,
+        percentage: parseFloat(newTaxPercentage)
+      };
+      
+      setProduct({
+        ...product,
+        taxes: [...product.taxes, newTax]
+      });
+      
+      setNewTaxName('');
+      setNewTaxPercentage('');
+    }
+  };
+
+  const handleRemoveTax = (taxId: string) => {
+    if (product) {
+      setProduct({
+        ...product,
+        taxes: product.taxes.filter(tax => tax.id !== taxId)
       });
     }
   };
@@ -221,30 +305,6 @@ const ManageProduct = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Price</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={product.price}
-                  onChange={handleInputChange}
-                  className={inputClassName}
-                  step="0.01"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Stock</label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={product.stock}
-                  onChange={handleInputChange}
-                  className={inputClassName}
-                />
-              </div>
-            </div>
-
             <div>
               <label className="block text-sm font-medium mb-2">Status</label>
               <select
@@ -256,6 +316,132 @@ const ManageProduct = () => {
                 <option value="Live">Live</option>
                 <option value="Saved">Saved</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Stock</label>
+              <input
+                type="number"
+                name="stock"
+                value={product.stock}
+                onChange={handleInputChange}
+                className={inputClassName}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Pricing Section */}
+        <div className="border p-4 rounded-lg">
+          <h3 className="text-lg font-medium mb-4">Pricing</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Base Price (cost price)</label>
+              <input
+                type="number"
+                name="basePrice"
+                value={product.basePrice}
+                onChange={handleInputChange}
+                className={inputClassName}
+                min="0"
+                step="0.01"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Profit Percentage</label>
+              <div className="flex">
+                <input
+                  type="number"
+                  name="profitPercentage"
+                  value={product.profitPercentage}
+                  onChange={handleInputChange}
+                  className={`${inputClassName} rounded-r-none`}
+                  min="0"
+                  step="0.1"
+                />
+                <div className={`flex items-center justify-center px-4 border border-l-0 rounded-r-md ${
+                  theme === 'dark' ? 'bg-gray-900 border-gray-800' : 'bg-white border-shopify-border'
+                }`}>
+                  %
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Price with Profit</label>
+              <input
+                type="number"
+                value={product.priceWithProfit.toFixed(2)}
+                className={`${inputClassName} bg-shopify-surface`}
+                disabled
+              />
+              <p className="mt-1 text-xs text-shopify-text-secondary">
+                Base price + {product.profitPercentage}% profit
+              </p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Final Price (with profit and taxes)</label>
+              <input
+                type="number"
+                value={product.finalPrice.toFixed(2)}
+                className={`${inputClassName} bg-shopify-surface font-bold`}
+                disabled
+              />
+            </div>
+          </div>
+          
+          {/* Taxes */}
+          <div className="mt-6">
+            <label className="block text-sm font-medium mb-2">Taxes (applied on price with profit)</label>
+            <div className="grid grid-cols-12 gap-2">
+              <input
+                type="text"
+                value={newTaxName}
+                onChange={(e) => setNewTaxName(e.target.value)}
+                className={`${inputClassName} col-span-7`}
+                placeholder="Tax name"
+              />
+              <input
+                type="number"
+                value={newTaxPercentage}
+                onChange={(e) => setNewTaxPercentage(e.target.value)}
+                className={`${inputClassName} col-span-4`}
+                placeholder="Percentage"
+                min="0"
+                step="0.01"
+              />
+              <button
+                onClick={handleAddTax}
+                className={`p-2 border rounded-md col-span-1 ${
+                  theme === 'dark'
+                    ? 'border-gray-800 hover:bg-gray-900'
+                    : 'border-shopify-border hover:bg-shopify-surface'
+                }`}
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Tax List */}
+            <div className="space-y-2 mt-2">
+              {product.taxes.map((tax) => (
+                <div
+                  key={tax.id}
+                  className={`flex items-center justify-between p-2 border rounded-md ${
+                    theme === 'dark' ? 'border-gray-800' : 'border-shopify-border'
+                  }`}
+                >
+                  <span>{tax.name} ({tax.percentage}%)</span>
+                  <button
+                    onClick={() => handleRemoveTax(tax.id)}
+                    className="text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>

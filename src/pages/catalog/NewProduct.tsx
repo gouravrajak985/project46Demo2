@@ -26,21 +26,28 @@ const NewProduct = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [basePrice, setBasePrice] = useState('');
+  const [profitPercentage, setProfitPercentage] = useState('20');
   const [taxes, setTaxes] = useState<Tax[]>([]);
   const [newTaxName, setNewTaxName] = useState('');
   const [newTaxPercentage, setNewTaxPercentage] = useState('');
   const [stock, setStock] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [priceWithProfit, setPriceWithProfit] = useState(0);
   const [finalPrice, setFinalPrice] = useState(0);
 
   useEffect(() => {
-    const basePrice = parseFloat(price) || 0;
+    const basePriceValue = parseFloat(basePrice) || 0;
+    const profitValue = basePriceValue * (parseFloat(profitPercentage) / 100);
+    const priceWithProfitValue = basePriceValue + profitValue;
+    setPriceWithProfit(priceWithProfitValue);
+    
     const taxAmount = taxes.reduce((acc, tax) => {
-      return acc + (basePrice * (tax.percentage / 100));
+      return acc + (priceWithProfitValue * (tax.percentage / 100));
     }, 0);
-    setFinalPrice(basePrice + taxAmount);
-  }, [price, taxes]);
+    
+    setFinalPrice(priceWithProfitValue + taxAmount);
+  }, [basePrice, profitPercentage, taxes]);
 
   const handleAddTax = () => {
     if (newTaxName && newTaxPercentage) {
@@ -77,7 +84,9 @@ const NewProduct = () => {
     console.log({
       title,
       description,
-      price: parseFloat(price),
+      basePrice: parseFloat(basePrice),
+      profitPercentage: parseFloat(profitPercentage),
+      priceWithProfit,
       taxes,
       finalPrice,
       stock: parseInt(stock),
@@ -177,11 +186,11 @@ const NewProduct = () => {
         {/* Pricing */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Base Price (without tax)</label>
+            <label className="block text-sm font-medium mb-1">Base Price (cost price)</label>
             <input
               type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              value={basePrice}
+              onChange={(e) => setBasePrice(e.target.value)}
               className={inputClassName}
               placeholder="0.00"
               min="0"
@@ -189,9 +198,42 @@ const NewProduct = () => {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium mb-1">Profit Percentage</label>
+            <div className="flex">
+              <input
+                type="number"
+                value={profitPercentage}
+                onChange={(e) => setProfitPercentage(e.target.value)}
+                className={`${inputClassName} rounded-r-none`}
+                placeholder="20"
+                min="0"
+                step="0.1"
+              />
+              <div className={`flex items-center justify-center px-4 border border-l-0 rounded-r-md ${
+                theme === 'dark' ? 'bg-gray-900 border-gray-800' : 'bg-white border-shopify-border'
+              }`}>
+                %
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Price with Profit</label>
+            <input
+              type="number"
+              value={priceWithProfit.toFixed(2)}
+              className={`${inputClassName} bg-shopify-surface`}
+              disabled
+            />
+            <p className="mt-1 text-xs text-shopify-text-secondary">
+              Base price + {profitPercentage}% profit
+            </p>
+          </div>
+
           {/* Taxes */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium">Taxes</label>
+            <label className="block text-sm font-medium">Taxes (applied on price with profit)</label>
             <div className="grid grid-cols-12 gap-2">
               <input
                 type="text"
@@ -244,11 +286,11 @@ const NewProduct = () => {
 
           {/* Final Price */}
           <div>
-            <label className="block text-sm font-medium mb-1">Final Price (with taxes)</label>
+            <label className="block text-sm font-medium mb-1">Final Price (with profit and taxes)</label>
             <input
               type="number"
               value={finalPrice.toFixed(2)}
-              className={`${inputClassName} bg-shopify-surface`}
+              className={`${inputClassName} bg-shopify-surface font-bold`}
               disabled
             />
           </div>
