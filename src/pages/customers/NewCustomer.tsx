@@ -134,7 +134,7 @@ const NewCustomer = () => {
           </button>
           <button
             type="submit"
-            className="px-6 py-3 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark flex items-center"
+            className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
           >
             <Save className="h-5 w-5 mr-2" />
             Create Customer

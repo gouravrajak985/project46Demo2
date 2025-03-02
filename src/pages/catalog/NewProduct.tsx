@@ -3,6 +3,18 @@ import { useTheme } from '../../context/ThemeContext';
 import { Upload, X, Plus, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+interface MenuItemProps { 
+  icon: React.ElementType;
+  label: string;
+  subItems?: string[];
+  isActive?: boolean;
+  path?: string;
+  subItemPaths?: string[];
+  isOpen?: boolean;
+  onToggle?: (id: string) => void;
+  id: string;
+}
+
 interface Tax {
   id: string;
   name: string;
@@ -269,7 +281,7 @@ const NewProduct = () => {
           </button>
           <button
             onClick={() => handleSave('published')}
-            className="px-4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
             Publish
           </button>

@@ -15,8 +15,26 @@ const Signup = () => {
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match");
+      return;
+    }
+    
     // Add signup logic here
-    navigate('/login');
+    console.log('Signing up with:', formData);
+    
+    // Navigate to OTP verification
+    navigate('/auth/otp-verification');
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -28,7 +46,7 @@ const Signup = () => {
       } rounded-lg shadow-lg p-8`}>
         <div className="text-center mb-8">
           <div className="flex justify-center mb-2">
-            <LayoutDashboard className="h-12 w-12" />
+            <LayoutDashboard className="h-12 w-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-1">Admin Panel</h2>
           <p className="text-sm text-gray-500">Developed by Avirrav</p>
@@ -39,8 +57,9 @@ const Signup = () => {
             <label className="block text-sm font-medium mb-2">Full Name</label>
             <input
               type="text"
+              name="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={handleChange}
               className={`w-full p-3 rounded border ${
                 theme === 'dark' 
                   ? 'bg-gray-800 border-gray-700' 
@@ -55,8 +74,9 @@ const Signup = () => {
             <label className="block text-sm font-medium mb-2">Email</label>
             <input
               type="email"
+              name="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={handleChange}
               className={`w-full p-3 rounded border ${
                 theme === 'dark' 
                   ? 'bg-gray-800 border-gray-700' 
@@ -71,8 +91,9 @@ const Signup = () => {
             <label className="block text-sm font-medium mb-2">Password</label>
             <input
               type="password"
+              name="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={handleChange}
               className={`w-full p-3 rounded border ${
                 theme === 'dark' 
                   ? 'bg-gray-800 border-gray-700' 
@@ -87,8 +108,9 @@ const Signup = () => {
             <label className="block text-sm font-medium mb-2">Confirm Password</label>
             <input
               type="password"
+              name="confirmPassword"
               value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              onChange={handleChange}
               className={`w-full p-3 rounded border ${
                 theme === 'dark' 
                   ? 'bg-gray-800 border-gray-700' 
@@ -101,7 +123,7 @@ const Signup = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 flex items-center justify-center"
+            className="w-full bg-primary text-white p-3 rounded hover:bg-primary/90 flex items-center justify-center"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             Create Account
@@ -110,11 +132,11 @@ const Signup = () => {
           <p className="text-center text-sm">
             Already have an account?{' '}
             <a
-              href="/login"
-              className="text-blue-500 hover:text-blue-600"
+              href="/auth/login"
+              className="text-primary hover:text-primary/80"
               onClick={(e) => {
                 e.preventDefault();
-                navigate('/login');
+                navigate('/auth/login');
               }}
             >
               Sign in

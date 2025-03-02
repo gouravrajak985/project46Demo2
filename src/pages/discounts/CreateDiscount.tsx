@@ -81,7 +81,7 @@ const CreateDiscount = () => {
               onClick={() => setFormData({ ...formData, type: 'discount_code' })}
               className={`p-4 border rounded-lg text-left ${
                 formData.type === 'discount_code'
-                  ? 'border-shopify-green bg-shopify-surface'
+                  ? 'border-green-600 bg-shopify-surface'
                   : 'border-shopify-border hover:bg-shopify-surface'
               }`}
             >
@@ -93,7 +93,7 @@ const CreateDiscount = () => {
               onClick={() => setFormData({ ...formData, type: 'coupon_codes' })}
               className={`p-4 border rounded-lg text-left ${
                 formData.type === 'coupon_codes'
-                  ? 'border-shopify-green bg-shopify-surface'
+                  ? 'border-green-600 bg-shopify-surface'
                   : 'border-shopify-border hover:bg-shopify-surface'
               }`}
             >
@@ -118,7 +118,7 @@ const CreateDiscount = () => {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, code: generateRandomCode() })}
-                className="px 4 py-2 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Generate
               </button>
@@ -223,7 +223,7 @@ const CreateDiscount = () => {
           </button>
           <button
             type="submit"
-            className="px-6 py-3 bg-shopify-green text-white rounded-md hover:bg-shopify-green-dark flex items-center"
+            className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
           >
             <Save className="h-5 w-5 mr-2" />
             Create Discount

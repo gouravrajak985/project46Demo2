@@ -12,7 +12,13 @@ const Login = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // Add login logic here
-    navigate('/dashboard');
+    console.log('Logging in with:', { email, password });
+    
+    // For demo purposes, navigate to OTP verification
+    navigate('/auth/otp-verification');
+    
+    // In a real app, you would verify credentials first
+    // then navigate to dashboard or OTP verification
   };
 
   return (
@@ -24,7 +30,7 @@ const Login = () => {
       } rounded-lg shadow-lg p-8`}>
         <div className="text-center mb-8">
           <div className="flex justify-center mb-2">
-            <LayoutDashboard className="h-12 w-12" />
+            <LayoutDashboard className="h-12 w-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-1">Admin Panel</h2>
           <p className="text-sm text-gray-500">Developed by Avirrav</p>
@@ -74,14 +80,14 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <a href="#" className="text-sm text-blue-500 hover:text-blue-600">
+            <a href="#" className="text-sm text-primary hover:text-primary/80">
               Forgot password?
             </a>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 flex items-center justify-center"
+            className="w-full bg-primary text-white p-3 rounded hover:bg-primary/90 flex items-center justify-center"
           >
             <Lock className="h-4 w-4 mr-2" />
             Sign In
@@ -90,11 +96,11 @@ const Login = () => {
           <p className="text-center text-sm">
             Don't have an account?{' '}
             <a
-              href="/signup"
-              className="text-blue-500 hover:text-blue-600"
+              href="/auth/signup"
+              className="text-primary hover:text-primary/80"
               onClick={(e) => {
                 e.preventDefault();
-                navigate('/signup');
+                navigate('/auth/signup');
               }}
             >
               Sign up

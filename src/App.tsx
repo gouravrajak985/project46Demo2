@@ -16,6 +16,9 @@ import CreateDiscount from './pages/discounts/CreateDiscount';
 import SalesReports from './pages/reports/SalesReports';
 import CustomerGrowthReports from './pages/reports/CustomerGrowthReports';
 import PaymentReports from './pages/reports/PaymentReports';
+import OTPVerification from './pages/auth/OTPVerification';
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
 
 function App() {
   const [showMobileWarning, setShowMobileWarning] = useState(false);
@@ -50,24 +53,28 @@ function App() {
           </div>
         )}
         <Router>
-          <DashboardLayout>
-            <Routes>
-              <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/catalog/manage-products" element={<ManageProducts />} />
-              <Route path="/catalog/new-product" element={<NewProduct />} />
-              <Route path="/orders/manage-orders" element={<ManageOrders />} />
-              <Route path="/orders/new-order" element={<NewOrder />} />
-              <Route path="/customers/new-customer" element={<NewCustomer />} />
-              <Route path="/customers/manage-customers" element={<ManageCustomers />} />
-              <Route path="/discounts/manage" element={<ManageDiscounts />} />
-              <Route path="/discounts/create" element={<CreateDiscount />} />
-              <Route path="/reports/sales" element={<SalesReports />} />
-              <Route path="/reports/customer-growth" element={<CustomerGrowthReports />} />
-              <Route path="/reports/payments" element={<PaymentReports />} />
-              <Route path="/profile" element={<Profile />} />
-            </Routes>
-          </DashboardLayout>
+          <Routes>
+            {/* Auth Routes */}
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/signup" element={<Signup />} />
+            <Route path="/auth/otp-verification" element={<OTPVerification />} />
+            
+            {/* Dashboard Routes */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<DashboardLayout><Home /></DashboardLayout>} />
+            <Route path="/catalog/manage-products" element={<DashboardLayout><ManageProducts /></DashboardLayout>} />
+            <Route path="/catalog/new-product" element={<DashboardLayout><NewProduct /></DashboardLayout>} />
+            <Route path="/orders/manage-orders" element={<DashboardLayout><ManageOrders /></DashboardLayout>} />
+            <Route path="/orders/new-order" element={<DashboardLayout><NewOrder /></DashboardLayout>} />
+            <Route path="/customers/new-customer" element={<DashboardLayout><NewCustomer /></DashboardLayout>} />
+            <Route path="/customers/manage-customers" element={<DashboardLayout><ManageCustomers /></DashboardLayout>} />
+            <Route path="/discounts/manage" element={<DashboardLayout><ManageDiscounts /></DashboardLayout>} />
+            <Route path="/discounts/create" element={<DashboardLayout><CreateDiscount /></DashboardLayout>} />
+            <Route path="/reports/sales" element={<DashboardLayout><SalesReports /></DashboardLayout>} />
+            <Route path="/reports/customer-growth" element={<DashboardLayout><CustomerGrowthReports /></DashboardLayout>} />
+            <Route path="/reports/payments" element={<DashboardLayout><PaymentReports /></DashboardLayout>} />
+            <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
+          </Routes>
         </Router>
       </SidebarProvider>
     </ThemeProvider>
