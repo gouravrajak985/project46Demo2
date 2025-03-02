@@ -1,0 +1,52 @@
+/* Input component styles */
+.input {
+  display: flex;
+  height: 2.5rem;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--input));
+  background-color: hsl(var(--background));
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+}
+
+.input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring));
+}
+
+.input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.input-icon.left {
+  left: 0.75rem;
+}
+
+.input-icon.right {
+  right: 0.75rem;
+}
+
+.input.with-left-icon {
+  padding-left: 2.5rem;
+}
+
+.input.with-right-icon {
+  padding-right: 2.5rem;
+}

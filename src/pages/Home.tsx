@@ -1,12 +1,10 @@
 import React from 'react';
 import { DollarSign, ShoppingCart, Package, TrendingUp, Bell } from 'lucide-react';
-import StatCard from '../components/StatCard';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Home = () => {
   const stats = [
     {
-      title: 'Total Sales',
+      title: 'Total Profit',
       value: '$45,231',
       change: '+20.1%',
       isPositive: true,
@@ -20,7 +18,7 @@ const Home = () => {
       icon: ShoppingCart
     },
     {
-      title: 'Total Items',
+      title: 'Total Products',
       value: '356',
       change: '-2.3%',
       isPositive: false,
@@ -60,34 +58,50 @@ const Home = () => {
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="home-container">
+      <div className="stats-grid">
         {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
+          <div key={index} className="stat-card">
+            <div className="stat-card-header">
+              <div className="stat-card-title">{stat.title}</div>
+              <div className="stat-card-icon-container">
+                <stat.icon className="stat-card-icon" />
+              </div>
+            </div>
+            <div className="stat-card-content">
+              <div className="stat-card-value">{stat.value}</div>
+              <div className="stat-card-change">
+                <span className={stat.isPositive ? 'stat-card-change-positive' : 'stat-card-change-negative'}>
+                  {stat.change}
+                </span>
+                <span className="stat-card-period">from last month</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center">
-          <Bell className="h-5 w-5 mr-2 text-muted-foreground" />
-          <CardTitle>Recent Notifications</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {notifications.map((notification) => (
-            <Card key={notification.id} className="bg-secondary">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium">{notification.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{notification.description}</p>
+      <div className="notifications-container">
+        <div className="card">
+          <div className="card-header row">
+            <Bell className="h-5 w-5 mr-2 text-muted-foreground" />
+            <h2 className="card-title">Recent Notifications</h2>
+          </div>
+          <div className="card-content spaced">
+            {notifications.map((notification) => (
+              <div key={notification.id} className="card secondary">
+                <div className="card-content">
+                  <div className="notification-header">
+                    <h3 className="notification-title">{notification.title}</h3>
+                    <span className="notification-time">{notification.time}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{notification.time}</span>
+                  <p className="notification-description">{notification.description}</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </CardContent>
-      </Card>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
