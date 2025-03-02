@@ -3,6 +3,12 @@ import { useTheme } from '../../context/ThemeContext';
 import { Eye, Edit, Trash2, ArrowLeft, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+interface OrderItem {
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
 interface Order {
   id: string;
   customerName: string;
@@ -11,6 +17,7 @@ interface Order {
   paymentMethod: string;
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Returned' | 'Refunded' | 'Completed' | 'Saved';
   date: string;
+  items: OrderItem[];
 }
 
 const orders: Order[] = [
@@ -21,7 +28,11 @@ const orders: Order[] = [
     paymentReceived: true,
     paymentMethod: 'Credit Card',
     status: 'Delivered',
-    date: '2024-03-15'
+    date: '2024-03-15',
+    items: [
+      { productName: 'Premium Headphones', quantity: 1, price: 199.99 },
+      { productName: 'Wireless Mouse', quantity: 2, price: 49.99 }
+    ]
   },
   {
     id: 'ORD-002',
@@ -30,7 +41,10 @@ const orders: Order[] = [
     paymentReceived: false,
     paymentMethod: 'PayPal',
     status: 'Pending',
-    date: '2024-03-14'
+    date: '2024-03-14',
+    items: [
+      { productName: 'Mechanical Keyboard', quantity: 1, price: 149.99 }
+    ]
   },
   {
     id: 'ORD-003',
@@ -39,7 +53,10 @@ const orders: Order[] = [
     paymentReceived: true,
     paymentMethod: 'Bank Transfer',
     status: 'Saved',
-    date: '2024-03-13'
+    date: '2024-03-13',
+    items: [
+      { productName: 'Gaming Monitor', quantity: 2, price: 299.99 }
+    ]
   },
   {
     id: 'ORD-004',
@@ -48,7 +65,13 @@ const orders: Order[] = [
     paymentReceived: false,
     paymentMethod: 'Credit Card',
     status: 'Cancelled',
-    date: '2024-03-12'
+    date: '2024-03-12',
+    items: [
+      { productName: 'Gaming Monitor', quantity: 1, price: 299.99 },
+      { productName: 'Premium Headphones', quantity: 1, price: 199.99 },
+      { productName: 'Mechanical Keyboard', quantity: 1, price: 159.99 },
+      { productName: 'Wireless Mouse', quantity: 2, price: 49.99 }
+    ]
   }
 ];
 
@@ -72,15 +95,25 @@ const ManageOrders = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const handleManageOrder = (orderId: string) => {
     // Navigate to a dedicated order management page
     navigate(`/orders/manage-order/${orderId}`);
   };
 
+  const toggleOrderDetails = (orderId: string) => {
+    if (expandedOrderId === orderId) {
+      setExpandedOrderId(null);
+    } else {
+      setExpandedOrderId(orderId);
+    }
+  };
+
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.id.toLowerCase().includes(searchQuery.toLowerCase());
+                         order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         order.items.some(item => item.productName.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = !statusFilter || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -108,7 +141,7 @@ const ManageOrders = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-shopify-text-secondary" />
               <input
                 type="text"
-                placeholder="Search orders..."
+                placeholder="Search orders or products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`w-full pl-10 pr-4 py-2 border rounded-md ${
@@ -171,47 +204,84 @@ const ManageOrders = () => {
             theme === 'dark' ? 'divide-gray-800' : 'divide-shopify-border'
           }`}>
             {filteredOrders.map((order) => (
-              <tr key={order.id} className={
-                theme === 'dark' ? 'hover:bg-gray-900' : 'hover:bg-shopify-surface'
-              }>
-                <td className="px-6 py-4 font-medium">{order.id}</td>
-                <td className="px-6 py-4">{order.customerName}</td>
-                <td className={`px-6 py-4 font-medium ${
-                  order.paymentReceived ? 'text-green-500' : 'text-red-500'
-                }`}>
-                  ${order.amount.toFixed(2)}
-                </td>
-                <td className="px-6 py-4">{order.paymentMethod}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">{order.date}</td>
-                <td className="px-6 py-4">
-                  <div className="flex space-x-3">
-                    <button className={`p-2 border rounded-md ${
-                      theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
-                    }`}>
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleManageOrder(order.id)}
-                      className={`p-2 border rounded-md ${
+              <React.Fragment key={order.id}>
+                <tr className={
+                  theme === 'dark' ? 'hover:bg-gray-900' : 'hover:bg-shopify-surface'
+                }>
+                  <td className="px-6 py-4 font-medium">{order.id}</td>
+                  <td className="px-6 py-4">{order.customerName}</td>
+                  <td className={`px-6 py-4 font-medium ${
+                    order.paymentReceived ? 'text-green-500' : 'text-red-500'
+                  }`}>
+                    ${order.amount.toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4">{order.paymentMethod}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">{order.date}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex space-x-3">
+                      <button 
+                        onClick={() => toggleOrderDetails(order.id)}
+                        className={`p-2 border rounded-md ${
+                          theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
+                        }`}
+                        title="View Order Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleManageOrder(order.id)}
+                        className={`p-2 border rounded-md ${
+                          theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
+                        }`}
+                        title="Manage Order"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button className={`p-2 border rounded-md ${
                         theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
-                      }`}
-                      title="Manage Order"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button className={`p-2 border rounded-md ${
-                      theme === 'dark' ? 'border-gray-800 hover:bg-gray-800' : 'border-shopify-border hover:bg-shopify-surface'
+                      }`}>
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {expandedOrderId === order.id && (
+                  <tr>
+                    <td colSpan={7} className={`px-6 py-4 ${
+                      theme === 'dark' ? 'bg-gray-900' : 'bg-shopify-surface'
                     }`}>
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      <div className="text-sm">
+                        <h4 className="font-medium mb-2">Order Items:</h4>
+                        <table className="w-full">
+                          <thead>
+                            <tr className="text-xs text-shopify-text-secondary">
+                              <th className="text-left py-2">Product</th>
+                              <th className="text-left py-2">Quantity</th>
+                              <th className="text-left py-2">Price</th>
+                              <th className="text-left py-2">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {order.items.map((item, index) => (
+                              <tr key={index} className="border-t border-gray-200 dark:border-gray-800">
+                                <td className="py-2">{item.productName}</td>
+                                <td className="py-2">{item.quantity}</td>
+                                <td className="py-2">${item.price.toFixed(2)}</td>
+                                <td className="py-2">${(item.quantity * item.price).toFixed(2)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

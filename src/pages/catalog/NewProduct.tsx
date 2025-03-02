@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { Upload, X, Plus, Save, ArrowLeft } from 'lucide-react';
+import { Plus, Minus, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-interface MenuItemProps { 
-  icon: React.ElementType;
-  label: string;
-  subItems?: string[];
-  isActive?: boolean;
-  path?: string;
-  subItemPaths?: string[];
-  isOpen?: boolean;
-  onToggle?: (id: string) => void;
+interface OrderItem {
   id: string;
+  productName: string;
+  quantity: number;
+  price: number;
 }
 
 interface Tax {
@@ -35,8 +30,12 @@ const NewProduct = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [priceWithProfit, setPriceWithProfit] = useState(0);
   const [finalPrice, setFinalPrice] = useState(0);
+  const [brand, setBrand] = useState('');
+  const [category, setCategory] = useState('');
+  const [dimensions, setDimensions] = useState('');
+  const [weight, setWeight] = useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
     const basePriceValue = parseFloat(basePrice) || 0;
     const profitValue = basePriceValue * (parseFloat(profitPercentage) / 100);
     const priceWithProfitValue = basePriceValue + profitValue;
@@ -90,6 +89,10 @@ const NewProduct = () => {
       taxes,
       finalPrice,
       stock: parseInt(stock),
+      brand,
+      category,
+      dimensions,
+      weight,
       status
     });
   };
@@ -121,7 +124,7 @@ const NewProduct = () => {
       <div className="p-6 space-y-6">
         {/* Product Image Upload */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium">Product Image</label>
+          <label className="block text-sm font-medium mb-2">Product Image</label>
           <div className="flex items-center space-x-4">
             <div className={`w-32 h-32 border-2 border-dashed rounded-lg flex items-center justify-center ${
               theme === 'dark' ? 'border-gray-800' : 'border-shopify-border'
@@ -137,7 +140,7 @@ const NewProduct = () => {
                     onClick={() => setImagePreview(null)}
                     className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
                   >
-                    <X className="w-4 h-4" />
+                    <Minus className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
@@ -148,7 +151,7 @@ const NewProduct = () => {
                     accept="image/*"
                     onChange={handleImageUpload}
                   />
-                  <Upload className="w-8 h-8 text-shopify-text-secondary" />
+                  <Plus className="w-8 h-8 text-shopify-text-secondary" />
                 </label>
               )}
             </div>
@@ -171,6 +174,8 @@ const NewProduct = () => {
               placeholder="Enter product title"
             />
           </div>
+
+     
 
           <div>
             <label className="block text-sm font-medium mb-1">Description</label>
@@ -277,7 +282,7 @@ const NewProduct = () => {
                     onClick={() => handleRemoveTax(tax.id)}
                     className="text-red-500"
                   >
-                    <X className="w-4 h-4" />
+                    <Minus className="w-4 h-4" />
                   </button>
                 </div>
               ))}
@@ -308,6 +313,52 @@ const NewProduct = () => {
             min="0"
           />
         </div>
+         {/* Additional Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Category</label>
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={inputClassName}
+                placeholder="Enter product category"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Brand</label>
+              <input
+                type="text"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                className={inputClassName}
+                placeholder="Enter product brand"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Dimensions</label>
+              <input
+                type="text"
+                value={dimensions}
+                onChange={(e) => setDimensions(e.target.value)}
+                className={inputClassName}
+                placeholder="e.g., 10 x 5 x 2 inches"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Weight</label>
+              <input
+                type="text"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className={inputClassName}
+                placeholder="e.g., 2.5 lbs"
+              />
+            </div>
+          </div>
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-4 pt-6">
